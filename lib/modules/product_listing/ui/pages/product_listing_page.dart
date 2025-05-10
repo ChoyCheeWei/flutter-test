@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../models/product/product_model.dart';
+import '../../../product_details/ui/pages/product_details_page.dart';
 import '../../bloc/product_cubit.dart';
 import '../widgets/product_item_widget.dart';
 
@@ -68,6 +70,16 @@ class _ProductListingPageState extends State<ProductListingPage> {
           final product = state.products[index];
           return ProductItemWidget(
             product: product,
+            onPressed: (ProductModel product) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProductDetailsPage(
+                    productDetails: product,
+                  ),
+                ),
+              );
+            },
           );
         },
       ),

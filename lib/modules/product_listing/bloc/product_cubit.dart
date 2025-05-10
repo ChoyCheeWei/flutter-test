@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:myeg_flutter_test/models/product/product_model.dart';
 
-import '../../enum/enum.dart';
+import '../../../enum/enum.dart';
 
 part 'product_state.dart';
 
