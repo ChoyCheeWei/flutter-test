@@ -5,6 +5,7 @@ import '../../../../models/product/product_model.dart';
 import '../../../product_details/ui/pages/product_details_page.dart';
 import '../../bloc/product_cubit.dart';
 import '../widgets/product_item_widget.dart';
+import '../widgets/product_search_widget.dart';
 
 class ProductListingPage extends StatefulWidget {
   const ProductListingPage({super.key});
@@ -35,7 +36,7 @@ class _ProductListingPageState extends State<ProductListingPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: _getAppBarWidget(),
+          appBar: _getAppBarWidget(state),
           body: _getBodyWidget(state),
         );
       },
@@ -43,7 +44,8 @@ class _ProductListingPageState extends State<ProductListingPage> {
   }
 
   Widget _getBodyWidget(ProductState state) {
-    if (state.isEmpty) {
+    final products = state.getProductsByCategory;
+    if (products.isEmpty) {
       return Center(
         child: Text(
           'No Record(s)',
@@ -65,9 +67,9 @@ class _ProductListingPageState extends State<ProductListingPage> {
           mainAxisSpacing: 16,
           mainAxisExtent: 220,
         ),
-        itemCount: state.products.length,
+        itemCount: products.length,
         itemBuilder: (context, index) {
-          final product = state.products[index];
+          final product = products[index];
           return ProductItemWidget(
             product: product,
             onPressed: (ProductModel product) {
@@ -86,7 +88,61 @@ class _ProductListingPageState extends State<ProductListingPage> {
     );
   }
 
-  AppBar _getAppBarWidget() {
+  PreferredSize? _getProductCategoryWidget(ProductState state) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return state.products.isEmpty
+        ? null
+        : PreferredSize(
+            preferredSize: Size.fromHeight(50),
+            child: BlocBuilder<ProductCubit, ProductState>(
+              builder: (context, state) {
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: state.getAllCategories().map((category) {
+                        bool isSelected = category == state.selectedProductCategory;
+                        return InkWell(
+                          splashFactory: NoSplash.splashFactory,
+                          highlightColor: Colors.transparent,
+                          onTap: () async {
+                            if (isSelected) {
+                              return;
+                            }
+                            await context.read<ProductCubit>().getProductsByCategory(category);
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(right: 12),
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white,
+                              ),
+                            ),
+                            child: Text(
+                              category.substring(0, 1).toUpperCase() + category.substring(1),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: isSelected ? colorScheme.onPrimaryContainer : Colors.white,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+  }
+
+  AppBar _getAppBarWidget(ProductState state) {
     final colorScheme = Theme.of(context).colorScheme;
     return AppBar(
       backgroundColor: colorScheme.primary,
@@ -98,6 +154,21 @@ class _ProductListingPageState extends State<ProductListingPage> {
           color: Colors.white,
         ),
       ),
+      bottom: _getProductCategoryWidget(state),
+      actions: [
+        IconButton(
+          color: Colors.white,
+          icon: Icon(Icons.search),
+          onPressed: () async {
+            await showSearch(
+              context: context,
+              delegate: ProductSearchDelegate(
+                products: state.products,
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }
