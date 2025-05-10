@@ -11,6 +11,7 @@ part 'product_state.dart';
 
 class ProductCubit extends HydratedCubit<ProductState> {
   ProductCubit() : super(ProductState.initial()) {
+    getProductsByCategory('All');
     getProductListing();
   }
 
@@ -33,6 +34,15 @@ class ProductCubit extends HydratedCubit<ProductState> {
         stateStatus: ProductStateStatus.failed,
       ));
     }
+  }
+
+  Future<void> getProductsByCategory(String category) async {
+    emit(
+      state.copyWith(
+        selectedProductCategory: category,
+        stateStatus: ProductStateStatus.loaded,
+      ),
+    );
   }
 
   @override

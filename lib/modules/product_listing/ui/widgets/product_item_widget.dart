@@ -25,6 +25,12 @@ class _ProductItemWidgetState extends State<ProductItemWidget> {
   }
 
   @override
+  void didUpdateWidget(covariant ProductItemWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    product = widget.product;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
